@@ -6,7 +6,10 @@
  *******************************************************************************/
 package com.ricardojlrufino.jexplorer;
 
+import com.ricardojlrufino.jexplorer.utils.AcceptAllFileFilter;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,10 +21,17 @@ import javax.swing.tree.TreePath;
 
 public class FileTreeModel extends DefaultTreeModel {
 
-  public FileTreeModel(TreeNode root) {
-    super(root);
+  private FileFilter fileFilter = new AcceptAllFileFilter(); // TODO: TO IMPLEMENT...
+
+  public FileTreeModel() {
+    super(null);
   }
 
+  public FileTreeNode setRoot(File file){
+    FileTreeNode root = new FileTreeNode(file);
+    setRoot(root);
+    return root;
+  }
 //  @Override
 //  public void valueForPathChanged(TreePath path, Object newValue) {
 //    FileTreeNode  aNode = (FileTreeNode) path.getLastPathComponent();
@@ -39,8 +49,16 @@ public class FileTreeModel extends DefaultTreeModel {
 //    }
 //    
 //  }
-  
-  public static class FileTreeNode extends DefaultMutableTreeNode {
+
+  public FileFilter getFileFilter() {
+    return fileFilter;
+  }
+
+  public void setFileFilter(FileFilter fileFilter) {
+    this.fileFilter = fileFilter;
+  }
+
+  public class FileTreeNode extends DefaultMutableTreeNode {
   
     private File file; // user object
   
@@ -157,13 +175,12 @@ public class FileTreeModel extends DefaultTreeModel {
           interim = false;
         }
   
-        String[] names = f.list(); // Get list of contents
+        File[] files = f.listFiles(fileFilter); // Get list of contents
   
         // Process the contents
         ArrayList list = new ArrayList();
-        for (int i = 0; i < names.length; i++) {
-          String name = names[i];
-          File d = new File(file, name);
+        for (int i = 0; i < files.length; i++) {
+          File d = files[i];
           try {
             FileTreeNode node = new FileTreeNode(d);
             list.add(node);

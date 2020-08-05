@@ -66,16 +66,14 @@ public class JExplorerPanel extends JPanel {
 
   /** File-system tree. Built Lazily */
   private JTree tree;
-  private DefaultTreeModel treeModel;
+  private final FileTreeModel treeModel=new FileTreeModel();
   
   protected JPopupMenu popup;
 
   private File rootDir;
   
   private FileTreeNode rootNode;
-  
-  private FileFilter fileFilter = new AcceptAllFileFilter(); // TODO: TO IMPLEMENT...
-  
+
   private Translate translate;
   
   // Alow Ctrl+Z last file operation.
@@ -96,12 +94,10 @@ public class JExplorerPanel extends JPanel {
     setLayout(new BorderLayout());
 
     // the File tree
-    rootNode = new FileTreeNode(rootDir);
+    rootNode = treeModel.setRoot(rootDir);
 
     // Populate the root node with its subdirectories
     rootNode.populateDirectories(true);
-
-    treeModel = new FileTreeModel(rootNode);
 
     // TreeSelectionListener treeSelectionListener = new TreeSelectionListener() {
     // public void valueChanged(TreeSelectionEvent tse) {
@@ -289,7 +285,7 @@ public class JExplorerPanel extends JPanel {
   }
   
   public void setFileFilter(FileFilter fileFilter) {
-    this.fileFilter = fileFilter;
+    treeModel.setFileFilter(fileFilter);
   }
   
   public JTree getTree() {
@@ -301,17 +297,14 @@ public class JExplorerPanel extends JPanel {
    */
   public void replaceWorkingDirectory( File selectedFile ) {
       this.rootDir = selectedFile;
-      
+
       // the File tree
-      rootNode = new FileTreeNode(rootDir);
+      rootNode = treeModel.setRoot(rootDir);
 
       // Populate the root node with its subdirectories
       rootNode.populateDirectories(true);
-      
-      treeModel = new FileTreeModel(rootNode);
-      
-      tree.setModel(treeModel);
-      
+      treeModel.nodeStructureChanged(rootNode);
+
       undoQueue.clear();
   }
 
@@ -429,7 +422,7 @@ public class JExplorerPanel extends JPanel {
    * Detect new external files on root directory
    */
   private boolean detectRootChanges() {
-    File[] listFiles = rootDir.listFiles(fileFilter);
+    File[] listFiles = rootDir.listFiles(treeModel.getFileFilter());
     return rootNode.getChildCount() != listFiles.length;
   }
   
