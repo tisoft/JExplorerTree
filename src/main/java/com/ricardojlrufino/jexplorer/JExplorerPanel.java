@@ -286,6 +286,7 @@ public class JExplorerPanel extends JPanel {
   
   public void setFileFilter(FileFilter fileFilter) {
     treeModel.setFileFilter(fileFilter);
+    handleReload();
   }
   
   public JTree getTree() {
